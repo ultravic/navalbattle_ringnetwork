@@ -1,0 +1,3 @@
+import navalbattle
+
+navalbattle.play()
