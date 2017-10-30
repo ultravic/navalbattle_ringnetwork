@@ -15,9 +15,17 @@ PORT = 5050
 servers = {}
 servers['macalan'] = '200.17.202.6'
 servers['orval'] = '200.17.202.28'
+servers['h12'] = '10.254.223.16'
+servers['h11'] = '10.254.223.15'
+servers['h10'] = '10.254.223.14'
+servers['h9'] = '10.254.223.13'
 reverse = {}
 reverse['200.17.202.6'] = 'macalan'
 reverse['200.17.202.28'] = 'orval'
+reverse['10.254.223.16'] = 'h12'
+reverse['10.254.223.15'] = 'h11'
+reverse['10.254.223.14'] = 'h10'
+reverse['10.254.223.13'] = 'h9'
 
 # Initiatle the table
 def init(N, S):
@@ -213,6 +221,9 @@ def play():
     if '--token' in sys.argv:
         struct_server['has_token'] = True
 
+    print "##################################"
+    print "Bem vindo jogador %s" % sys.argv[1]
+
     # Read inputs for the table
     n = int(raw_input("Tamanho do tabulerio : "))
     s = int(raw_input("Quantidade de navios : "))
@@ -221,7 +232,7 @@ def play():
     init(n, s)
 
     # Add the player to the list
-    players = ['macalan', 'orval']
+    players = ['h12', 'h11', 'h10', 'h9']
 
     # Add the ships to a given coordenation
     while s:
@@ -286,7 +297,31 @@ def play():
                 data = pickle.loads(dataReceiver[0])
                 address = dataReceiver[1]
 
-            print data['data']
+                if data['received']:
+                    if data['type'] == 'DX':
+                        print '%s of player %s' % (data['data'], data['id'])
+                        data['destiny'] = ''
+                        data['type'] = 'D'
+                        data['received'] = 0
+                        try:
+                            sock.sendto(pickle.dumps(data), (struct_server['target']))
+                        except socket.error, message:
+                            print 'Erro ao mandar mensagem!'
+                            continue
+                    # If the message has type E, print player data and remove from players
+                    elif data['type'] == 'EX':
+                        print data['data']
+                        players.remove(data['id'])
+                        data['type'] = 'E'
+                        data['received'] = 0
+                        try:
+                            sock.sendto(pickle.dumps(data), (struct_server['target']))
+                        except socket.error, message:
+                            print 'Erro ao mandar mensagem!'
+                            continue
+                    elif data['type'] != 'D' and data['type'] != 'E':
+                        print data['data']
+            
 
             # Create the message to send token
             data = {
@@ -305,92 +340,107 @@ def play():
             while True:
                 try:
                     sock.sendto(pickle.dumps(data), (struct_server['target']))
+                    struct_server['has_token'] = False
                     break
                 except socket.error, message:
-                    print 'Erro ao mandar token!'
+                    print 'Erro ao mandar mensagem!'
                     continue
-            struct_server['has_token'] = False
         else:
             # If the player doesn't have the token, he wait for it
             print 'Aguardando jogadores...'
-            while not struct_server['has_token']:
+            while not struct_server['has_token'] and numberShips:
                 dataReceiver = sock.recvfrom(4096)
                 data = pickle.loads(dataReceiver[0])
                 address = dataReceiver[1]
 
-                # If the message destiny is equal to server id, then intercept it
-                if data['destiny'] == struct_server['id']:
-                    data['received'] = 1
-                    if data['type'] == 'A':
-                        print 'Ataque recebido do jogador %s nas coordenadas (%s, %s)!' % (data['id'], data['data'][0], data['data'][1])
-                        data['data'] = attackCoord(int(data['data'][0]), int(data['data'][1]))
-                        printTable()
-                # If the message has type D, print ship destroyed
-                elif data['type'] == 'D':
-                    print '%s of player %d' % (data['data'], data['id'])
-                    data['received'] = 1
-                # If the message has type E, print player data and remove from players
-                elif data['type'] == 'E':
-                    print data['data']
-                    data['received'] = 1
-                    players.remove(data['id'])
-                # If the message has type T, then get the token
-                elif data['type'] == 'T' and data['has_token'] == True:
+                if data['type'] == 'T' and data['has_token'] == True:
                     struct_server['has_token'] = True
-                try:
-                    sock.sendto(pickle.dumps(data), (struct_server['target']))
-                except socket.error, message:
-                    print 'Erro ao mandar mensagem!'
-                    sys.exit()
+                else:
+                    # If the message destiny is equal to server id, then intercept it
+                    if data['destiny'] == struct_server['id']:
+                        data['received'] = 1
+                        if data['type'] == 'A':
+                            print 'Ataque recebido do jogador %s nas coordenadas (%s, %s)!' % (data['id'], data['data'][0], data['data'][1])
+                            data['data'] = attackCoord(int(data['data'][0]), int(data['data'][1]))
+                            print data['data']
+                            if not numberShips:
+                                print "Todos os seus navios foram destruidos"
+                                data['type'] = 'EX'
+                                data['data'] = 'Jogador %s eliminado!' % struct_server['id']
+                            elif 'destruido' in data['data']:
+                                data['type'] = 'DX'
+                            printTable()
+                    # If the message has type D, print ship destroyed
+                    elif data['type'] == 'D':
+                        print '%s of player %s' % (data['data'], data['id'])
+                        data['received'] = 1
+                    # If the message has type E, print player data and remove from players
+                    elif data['type'] == 'E':
+                        print data['data']
+                        data['received'] = 1
+                        players.remove(data['id'])
+                    # If the message has type T, then get the token
+                    try:
+                        sock.sendto(pickle.dumps(data), (struct_server['target']))
+                    except socket.error, message:
+                        print 'Erro ao mandar mensagem!'
+                        sys.exit()
 
     # If player has no ship, then he didn't won the game and need to wait the end
     if not numberShips:
-        print "Todos os seus navios foram destruidos"
         print "Esperando o jogo terminar..."
 
         players.remove(struct_server['id'])
 
-        # Create the message to send the death
+        # Wait for the winner
+        while not struct_server['winner']:
+            dataReceiver = sock.recvfrom(4096)
+            data = pickle.loads(dataReceiver[0])
+            address = dataReceiver[1]
+
+            if data['type'] == 'W':
+                struct_server['winner'] = data['winner']
+                print 'O jogador vencedor é %d!' % data['winner']
+
+                while True:
+                    try:
+                        sock.sendto(dataReceiver[0], (struct_server['target']))
+                        break
+                    except socket.error, message:
+                        print 'Erro ao mandar mensagem!'
+                        sys.exit()
+            else:
+                try:
+                    sock.sendto(dataReceiver[0], (struct_server['target']))
+                    break
+                except socket.error, message:
+                    print 'Erro ao mandar mensagem!'
+                    sys.exit()
+    else:
+        print "Você é o vencedor!"
+ 
+        # Create the message to send token
         data = {
             'id'       : struct_server['id'],
             'host'     : struct_server['host'],
             'port'     : struct_server['port'],
             'origin'   : struct_server['address'],
             'destiny'  : struct_server['target'],
-            'type'     : 'E',
+            'type'     : 'W',
             'has_token': False,
-            'data'     : 'O jogador %s foi destruido!' % struct_server['id'],
             'received' : 0,
-            'winner'   : 0
+            'winner'   : struct_server['id']
         }
-
-        while not data['received']:
+        
+        while True:
             try:
-                sock.sendto(pickle.dumps(data), (struct_server['target']))
-            except socket.error, message:
-                print 'Erro ao mandar mensagem!'
-                continue
-
-            dataReceiver = sock.recvfrom(4096)
-            data = pickle.loads(dataReceiver[0])
-            address = dataReceiver[1]
-
-    # Wait for the winner
-    while not struct_server['winner']:
-        dataReceiver = sock.recvfrom(4096)
-        data = pickle.loads(dataReceiver[0])
-        address = dataReceiver[1]
-
-        if data['winner']:
-            struct_server['winner'] = data['winner']
-            print 'O jogador vencedor é %d!' % data['winner']
-        else:
-            try:
-                sock.sendto(dataReceiver[0], (struct_server['target']))
+                sock.sendto(pickle.dump(data), (struct_server['target']))
+                break
             except socket.error, message:
                 print 'Erro ao mandar mensagem!'
                 sys.exit()
-
+ 
     # Close the game
+    time.sleep(3)
     print 'Fechando o jogo...'
     sock.close()
