@@ -299,15 +299,10 @@ def play():
 
                 if data['received']:
                     if data['type'] == 'DX':
-                        print '%s of player %s' % (data['data'], data['id'])
+                        print '%s do jogador %s' % (data['data'], data['id'])
                         data['destiny'] = ''
                         data['type'] = 'D'
                         data['received'] = 0
-                        try:
-                            sock.sendto(pickle.dumps(data), (struct_server['target']))
-                        except socket.error, message:
-                            print 'Erro ao mandar mensagem!'
-                            continue
                     # If the message has type E, print player data and remove from players
                     elif data['type'] == 'EX':
                         print data['data']
@@ -371,8 +366,8 @@ def play():
                                 data['type'] = 'DX'
                             printTable()
                     # If the message has type D, print ship destroyed
-                    elif data['type'] == 'D':
-                        print '%s of player %s' % (data['data'], data['id'])
+                    elif data['type'] == 'D' and data['destiny'] != struct_server['id']:
+                        print '%s do jogador %s' % (data['data'], data['id'])
                         data['received'] = 1
                     # If the message has type E, print player data and remove from players
                     elif data['type'] == 'E':
