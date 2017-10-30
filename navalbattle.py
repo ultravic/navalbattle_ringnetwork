@@ -321,7 +321,7 @@ def play():
                             continue
                     elif data['type'] != 'D' and data['type'] != 'E':
                         print data['data']
-            
+
 
             # Create the message to send token
             data = {
@@ -418,7 +418,7 @@ def play():
                     sys.exit()
     else:
         print "Você é o vencedor!"
- 
+
         # Create the message to send token
         data = {
             'id'       : struct_server['id'],
@@ -431,7 +431,7 @@ def play():
             'received' : 0,
             'winner'   : struct_server['id']
         }
-        
+
         while True:
             try:
                 sock.sendto(pickle.dump(data), (struct_server['target']))
@@ -439,8 +439,10 @@ def play():
             except socket.error, message:
                 print 'Erro ao mandar mensagem!'
                 sys.exit()
- 
+
     # Close the game
     time.sleep(3)
     print 'Fechando o jogo...'
     sock.close()
+
+play()
