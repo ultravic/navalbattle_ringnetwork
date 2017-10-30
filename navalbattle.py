@@ -81,8 +81,8 @@ def attackCoord(line, column):
     if line > (tableN-1) or line < 0 or column > (tableN-1) or column < 0:
         response = "Coordenadas fora do tabuleiro"
     else:
-        if line == 1:
-            if column == 1:
+        if line == 0:
+            if column == 0:
                 if table[line*tableN + column] != 0:
                     if (table[line*tableN + column+1] == 0 and
                     table[(line+1)*tableN + column] == 0):
@@ -119,8 +119,8 @@ def attackCoord(line, column):
                         table[line*tableN + column] = 0
                 else:
                     response = "Missil atingiu a agua"
-        elif line == tableN:
-            if column == 1:
+        elif line == tableN-1:
+            if column == 0:
                 if table[line*tableN + column] != 0:
                     if (table[line*tableN + column+1] == 0 and
                     table[(line-1)*tableN + column] == 0):
@@ -132,7 +132,7 @@ def attackCoord(line, column):
                         table[line*tableN + column] = 0
                 else:
                     response = "Missil atingiu a agua"
-            elif column == tableN:
+            elif column == tableN-1:
                 if table[line*tableN + column] != 0:
                     if (table[line*tableN + column-1] == 0 and
                     table[(line-1)*tableN + column] == 0):
@@ -232,7 +232,8 @@ def play():
     init(n, s)
 
     # Add the player to the list
-    players = ['h12', 'h11', 'h10', 'h9']
+    players = ['macalan', 'orval']
+    # players = ['h12', 'h11', 'h10', 'h9']
 
     # Add the ships to a given coordenation
     while s:
@@ -249,7 +250,7 @@ def play():
     printTable()
 
     # While has ships and the there's no winner
-    while numberShips and len(players)-1:
+    while struct_server['id'] in players and len(players)-1:
         if struct_server['has_token']:
             # If the player has the token, then he can strike someone
             print "É a sua vez!"
@@ -309,15 +310,9 @@ def play():
                         players.remove(data['id'])
                         data['type'] = 'E'
                         data['received'] = 0
-                        try:
-                            sock.sendto(pickle.dumps(data), (struct_server['target']))
-                        except socket.error, message:
-                            print 'Erro ao mandar mensagem!'
-                            continue
                     elif data['type'] != 'D' and data['type'] != 'E':
                         print data['data']
-
-
+	    
             # Create the message to send token
             data = {
                 'id'       : struct_server['id'],
@@ -343,7 +338,7 @@ def play():
         else:
             # If the player doesn't have the token, he wait for it
             print 'Aguardando jogadores...'
-            while not struct_server['has_token'] and numberShips:
+            while not struct_server['has_token'] and struct_server['id'] in players:
                 dataReceiver = sock.recvfrom(4096)
                 data = pickle.loads(dataReceiver[0])
                 address = dataReceiver[1]
@@ -385,8 +380,6 @@ def play():
     if not numberShips:
         print "Esperando o jogo terminar..."
 
-        players.remove(struct_server['id'])
-
         # Wait for the winner
         while not struct_server['winner']:
             dataReceiver = sock.recvfrom(4096)
@@ -396,10 +389,10 @@ def play():
             if data['type'] == 'W':
                 struct_server['winner'] = data['winner']
                 print 'O jogador vencedor é %d!' % data['winner']
-
+		data['received'] = 1
                 while True:
                     try:
-                        sock.sendto(dataReceiver[0], (struct_server['target']))
+                        sock.sendto(pickle.dumps(data), (struct_server['target']))
                         break
                     except socket.error, message:
                         print 'Erro ao mandar mensagem!'
@@ -427,13 +420,17 @@ def play():
             'winner'   : struct_server['id']
         }
 
-        while True:
+        while not data['received']:
             try:
-                sock.sendto(pickle.dump(data), (struct_server['target']))
+                sock.sendto(pickle.dumps(data), (struct_server['target']))
                 break
             except socket.error, message:
                 print 'Erro ao mandar mensagem!'
                 sys.exit()
+	    
+	    dataReceived = sock.revfrom(4096)
+	    data = pickle.loads(dataReceived[0])
+	    address = dataReceived[1]
 
     # Close the game
     time.sleep(3)
