@@ -253,7 +253,7 @@ def play():
         if len(coordenations) != 3:
             print "\nDevem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente!\n"
             continue
-        if coordenations[2].upper() != 'L' and coordenations[2].upper() != 'C':
+        if coordenations[2].upper() != "L" and coordenations[2].upper() != "C":
             print "Os tipos de coordenada devem ser C ou L!\n"
             continue
         try:
@@ -265,6 +265,7 @@ def play():
         validate = addShip(int(coordenations[0]), int(coordenations[1]), coordenations[2], s)
         if validate:
             s -= 1
+        break
 
     # Show the table
     printTable()
@@ -302,14 +303,15 @@ def play():
                 coordenations = raw_input("\nCoordenadas de ataque (linha,coluna): ")
                 coordenations = coordenations.split(',')
                 if len(coordenations) != 2:
-                    print "Devem haver necessariamente 2 coordenadas. Digite novamente!\n"
+                    print "\nDevem haver necessariamente 2 coordenadas. Digite novamente!\n"
                     continue
                 try:
                     int(coordenations[0])
                     int(coordenations[1])
                 except ValueError:
-                    print "As coordenadas devem ser números inteiros!\n"
+                    print "\nAs coordenadas devem ser números inteiros!\n"
                     continue
+                break
 
             data['data'] = coordenations
 
