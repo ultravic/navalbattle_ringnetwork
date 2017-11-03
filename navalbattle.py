@@ -265,7 +265,6 @@ def play():
         validate = addShip(int(coordenations[0]), int(coordenations[1]), coordenations[2], s)
         if validate:
             s -= 1
-        break
 
     # Show the table
     printTable()
