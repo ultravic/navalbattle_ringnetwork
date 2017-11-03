@@ -300,19 +300,18 @@ def play():
 
                 if data['received']:
                     if data['type'] == 'DX':
-                        print '%s do jogador %s' % (data['data'], data['id'])
-                        data['destiny'] = ''
+                        data['data'] = data['data'] + ' do jogador ' + data['destiny']
                         data['type'] = 'D'
                         data['received'] = 0
                     # If the message has type E, print player data and remove from players
                     elif data['type'] == 'EX':
                         print data['data']
-                        players.remove(data['id'])
+                        players.remove(data['destiny'])
                         data['type'] = 'E'
                         data['received'] = 0
                     elif data['type'] != 'D' and data['type'] != 'E':
                         print data['data']
-	    
+
             # Create the message to send token
             data = {
                 'id'       : struct_server['id'],
@@ -346,8 +345,17 @@ def play():
                 if data['type'] == 'T' and data['has_token'] == True:
                     struct_server['has_token'] = True
                 else:
+                    # If the message has type D, print ship destroyed
+                    if data['type'] == 'D' and data['destiny'] != struct_server['id']:
+                        print data['data']
+                        data['received'] = 1
+                    # If the message has type E, print player data and remove from players
+                    elif data['type'] == 'E':
+                        print data['data']
+                        data['received'] = 1
+                        players.remove(data['destiny'])
                     # If the message destiny is equal to server id, then intercept it
-                    if data['destiny'] == struct_server['id']:
+                    elif data['destiny'] == struct_server['id']:
                         data['received'] = 1
                         if data['type'] == 'A':
                             print 'Ataque recebido do jogador %s nas coordenadas (%s, %s)!' % (data['id'], data['data'][0], data['data'][1])
@@ -360,15 +368,6 @@ def play():
                             elif 'destruido' in data['data']:
                                 data['type'] = 'DX'
                             printTable()
-                    # If the message has type D, print ship destroyed
-                    elif data['type'] == 'D' and data['destiny'] != struct_server['id']:
-                        print '%s do jogador %s' % (data['data'], data['id'])
-                        data['received'] = 1
-                    # If the message has type E, print player data and remove from players
-                    elif data['type'] == 'E':
-                        print data['data']
-                        data['received'] = 1
-                        players.remove(data['id'])
                     # If the message has type T, then get the token
                     try:
                         sock.sendto(pickle.dumps(data), (struct_server['target']))
@@ -388,8 +387,8 @@ def play():
 
             if data['type'] == 'W':
                 struct_server['winner'] = data['winner']
-                print 'O jogador vencedor é %d!' % data['winner']
-		data['received'] = 1
+                print data['data']
+                data['received'] = 1
                 while True:
                     try:
                         sock.sendto(pickle.dumps(data), (struct_server['target']))
@@ -420,6 +419,8 @@ def play():
             'winner'   : struct_server['id']
         }
 
+        data['data'] = 'O jogador vencedor é ' + data['id']
+
         while not data['received']:
             try:
                 sock.sendto(pickle.dumps(data), (struct_server['target']))
@@ -427,10 +428,10 @@ def play():
             except socket.error, message:
                 print 'Erro ao mandar mensagem!'
                 sys.exit()
-	    
-	    dataReceived = sock.revfrom(4096)
-	    data = pickle.loads(dataReceived[0])
-	    address = dataReceived[1]
+
+    	    dataReceived = sock.revfrom(4096)
+    	    data = pickle.loads(dataReceived[0])
+    	    address = dataReceived[1]
 
     # Close the game
     time.sleep(3)
