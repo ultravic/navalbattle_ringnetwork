@@ -177,10 +177,10 @@ def attackCoord(line, column):
 def printTable():
     global tableN, table
 
-    print '-- ' * range(0, tableN)
+    print '-- ' * tableN
     for i in range(0, tableN):
         print '| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
-    print '-- ' * range(0, tableN)
+    print '-- ' * tableN
 
 # Create socket server and make connection to the target server
 def connection(ID, HOST, TARGET):
