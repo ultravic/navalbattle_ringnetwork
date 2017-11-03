@@ -179,7 +179,7 @@ def printTable():
 
     print '\t' + ('-- ' * tableN)
     for i in range(0, tableN):
-        print '| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
+        print '\t| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
     print '\t' + ('-- ' * tableN)
     print '\n'
 
