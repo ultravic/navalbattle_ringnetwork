@@ -181,7 +181,6 @@ def printTable():
     for i in range(0, tableN):
         print '\t| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
     print '\t' + ('-- ' * tableN)
-    print '\n'
 
 # Create socket server and make connection to the target server
 def connection(ID, HOST, TARGET):
@@ -250,18 +249,19 @@ def play():
     # Add the ships to a given coordenation
     while s:
         coordenations = raw_input("Coordenadas e tipo(linha,coluna,tipo): ")
+        print '\n'
         coordenations = coordenations.split(',')
         if len(coordenations) != 3:
-            print "\nDevem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente!\n"
+            print "Devem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente!\n"
             continue
         if coordenations[2].upper() != "L" and coordenations[2].upper() != "C":
-            print "\nOs tipos de coordenada devem ser C ou L!\n"
+            print "Os tipos de coordenada devem ser C ou L!\n"
             continue
         try:
             int(coordenations[0])
             int(coordenations[1])
         except ValueError:
-            print "\nAs coordenadas devem ser números inteiros!\n"
+            print "As coordenadas devem ser números inteiros!\n"
             continue
         validate = addShip(int(coordenations[0]), int(coordenations[1]), coordenations[2], s)
         if validate:
@@ -287,29 +287,32 @@ def play():
                 'has_token': False,
                 'data'     : '',
                 'received' : 0,
-                'winner'   : 0
+                'winner'   : ''
             }
 
             # Choose a player to attack
             player = raw_input("Escolha um jogador: ")
+            print '\n'
             while (player == struct_server['id']) or (player not in players):
-                print '\nImpossível atacar jogador %s!\n' % player
+                print 'Impossível atacar jogador %s!\n' % player
                 player = raw_input("Escolha um jogador: ")
+                print '\n'
 
             data['destiny'] = player
 
             # Choose where to strike
             while True:
                 coordenations = raw_input("Coordenadas de ataque (linha,coluna): ")
+                print '\n'
                 coordenations = coordenations.split(',')
                 if len(coordenations) != 2:
-                    print "\nDevem haver necessariamente 2 coordenadas. Digite novamente!\n"
+                    print "Devem haver necessariamente 2 coordenadas. Digite novamente!\n"
                     continue
                 try:
                     int(coordenations[0])
                     int(coordenations[1])
                 except ValueError:
-                    print "\nAs coordenadas devem ser números inteiros!\n"
+                    print "As coordenadas devem ser números inteiros!\n"
                     continue
                 break
 
@@ -360,7 +363,7 @@ def play():
                 'type'     : 'T',
                 'has_token': True,
                 'received' : 0,
-                'winner'   : 0
+                'winner'   : ''
             }
 
             # Send token message
