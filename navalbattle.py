@@ -301,6 +301,7 @@ def play():
                 if data['received']:
                     if data['type'] == 'DX':
                         data['data'] = data['data'] + ' do jogador ' + data['destiny']
+                        print data['data']
                         data['type'] = 'D'
                         data['received'] = 0
                     # If the message has type E, print player data and remove from players
@@ -399,7 +400,6 @@ def play():
             else:
                 try:
                     sock.sendto(dataReceiver[0], (struct_server['target']))
-                    break
                 except socket.error, message:
                     print 'Erro ao mandar mensagem!'
                     sys.exit()
