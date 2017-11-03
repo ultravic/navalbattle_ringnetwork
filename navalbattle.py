@@ -176,17 +176,21 @@ def attackCoord(line, column):
 # Print the table
 def printTable():
     global tableN, table
+
+    print '-- ' * range(0, tableN)
     for i in range(0, tableN):
-        print ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN])
+        print '| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
+    print '-- ' * range(0, tableN)
 
 # Create socket server and make connection to the target server
 def connection(ID, HOST, TARGET):
     global sock, struct_server
+
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print 'Socket successfully created'
+        print 'Criação do socket feita com sucesso!'
     except:
-        print 'Socket creation failed'
+        print 'Criação do socket falhou! Saindo...'
         sys.exit()
 
     struct_server = {
@@ -203,8 +207,8 @@ def connection(ID, HOST, TARGET):
     while True:
         try:
             sock.bind(struct_server['host'])
-            print 'Socket successfully binded at %s' % struct_server['target'][0]
-            break;
+            print 'Socket vinculado com sucesso em %s\n' % struct_server['target'][0]
+            break
         except socket.error:
             print 'Erro ao conectar socket! Tentando novamente...'
             time.sleep(5)
@@ -221,12 +225,19 @@ def play():
     if '--token' in sys.argv:
         struct_server['has_token'] = True
 
-    print "##################################"
-    print "Bem vindo jogador %s!\n" % sys.argv[1]
+    print "#################################################"
+    print "### Bem vindo jogador %s!\n" % sys.argv[1]
 
     # Read inputs for the table
-    n = int(raw_input("Tamanho do tabulerio : "))
-    s = int(raw_input("Quantidade de navios : "))
+    while True:
+        try:
+            n = int(raw_input("Tamanho do tabulerio : "))
+            s = int(raw_input("Quantidade de navios : "))
+            break
+        except ValueError:
+            print "As entradas devem ser números inteiros!\n"
+            continue
+
 
     # Initialize the table
     init(n, s)
@@ -240,7 +251,16 @@ def play():
         coordenations = raw_input("Coordenadas e tipo(linha,coluna,tipo): ")
         coordenations = coordenations.split(',')
         if len(coordenations) != 3:
-            print "\nDevem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente\n"
+            print "\nDevem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente!\n"
+            continue
+        if coordenations[2].upper() != 'L' and coordenations[2].upper() != 'C':
+            print "Os tipos de coordenada devem ser C ou L!\n"
+            continue
+        try:
+            int(coordenations[0])
+            int(coordenations[1])
+        except ValueError:
+            print "As coordenadas devem ser números inteiros!\n"
             continue
         validate = addShip(int(coordenations[0]), int(coordenations[1]), coordenations[2], s)
         if validate:
@@ -278,28 +298,38 @@ def play():
             data['destiny'] = player
 
             # Choose where to strike
-            coordenations = raw_input("\nCoordenadas de ataque (linha,coluna): ")
-            coordenations = coordenations.split(',')
-            while len(coordenations) != 2:
-                print "Devem haver necessariamente 2 coordenadas. Digite novamente!"
-                coordenations = raw_input("Coordenadas de ataque (linha,coluna): ")
+            while True:
+                coordenations = raw_input("\nCoordenadas de ataque (linha,coluna): ")
                 coordenations = coordenations.split(',')
+                if len(coordenations) != 2:
+                    print "Devem haver necessariamente 2 coordenadas. Digite novamente!\n"
+                    continue
+                try:
+                    int(coordenations[0])
+                    int(coordenations[1])
+                except ValueError:
+                    print "As coordenadas devem ser números inteiros!\n"
+                    continue
 
             data['data'] = coordenations
 
             while not data['received']:
                 try:
-                    sock.settimeout(15)
+                    sock.settimeout(20)
                     sock.sendto(pickle.dumps(data), (struct_server['target']))
-                    sock.settimeout(None)
                 except socket.error, message:
                     print 'Erro ao mandar mensagem!\n'
+                    sock.settimeout(None)
+                    time.sleep(2)
                     continue
+                try:
+                    dataReceiver = sock.recvfrom(4096)
                 except socket.timeout:
-                    print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                    print 'Mensagem perdida! Tentando novamente...\n'
+                    sock.settimeout(None)
+                    time.sleep(2)
                     continue
-
-                dataReceiver = sock.recvfrom(4096)
+                sock.settimeout(None)
                 data = pickle.loads(dataReceiver[0])
                 address = dataReceiver[1]
 
@@ -334,16 +364,12 @@ def play():
             # Send token message
             while True:
                 try:
-                    sock.settimeout(15)
                     sock.sendto(pickle.dumps(data), (struct_server['target']))
-                    sock.settimeout(None)
                     struct_server['has_token'] = False
                     break
                 except socket.error, message:
                     print 'Erro ao mandar mensagem!\n'
-                    continue
-                except socket.timeout:
-                    print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                    time.sleep(2)
                     continue
         else:
             # If the player doesn't have the token, he wait for it
@@ -382,15 +408,10 @@ def play():
                     # If the message has type T, then get the token
                     while True:
                         try:
-                            sock.settimeout(15)
                             sock.sendto(pickle.dumps(data), (struct_server['target']))
-                            sock.settimeout(None)
                             break
                         except socket.error, message:
-                            print 'Erro ao mandar mensagem!\n'
-                            sys.exit()
-                        except socket.timeout:
-                            print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                            print 'Erro ao mandar mensagem! Tentando novamente...\n'
                             continue
 
     # If player has no ship, then he didn't won the game and need to wait the end
@@ -409,28 +430,20 @@ def play():
                 data['received'] = 1
                 while True:
                     try:
-                        sock.settimeout(15)
                         sock.sendto(pickle.dumps(data), (struct_server['target']))
-                        sock.settimeout(None)
                         break
                     except socket.error, message:
-                        print 'Erro ao mandar mensagem!\n'
-                        continue
-                    except socket.timeout:
-                        print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                        print 'Erro ao mandar mensagem! Tentando novamente...\n'
+                        time.sleep(2)
                         continue
             else:
                 while True:
                     try:
-                        sock.settimeout(15)
                         sock.sendto(dataReceiver[0], (struct_server['target']))
-                        sock.settimeout(None)
                         break
                     except socket.error, message:
-                        print 'Erro ao mandar mensagem!\n'
-                        continue
-                    except socket.timeout:
-                        print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                        print 'Erro ao mandar mensagem! Tentando novamente...\n'
+                        time.sleep(2)
                         continue
     else:
         print "Você é o vencedor!\n"
@@ -452,24 +465,28 @@ def play():
 
         while not data['received']:
             try:
-                sock.settimeout(15)
+                sock.settimeout(20)
                 sock.sendto(pickle.dumps(data), (struct_server['target']))
-                sock.settimeout(None)
                 break
             except socket.error, message:
-                print 'Erro ao mandar mensagem!\n'
+                print 'Erro ao mandar mensagem! Tentando novamente...\n'
+                sock.settimeout(None)
+                time.sleep(2)
                 continue
+    	    try:
+                dataReceiver = sock.recvfrom(4096)
             except socket.timeout:
-                print 'Não foi possível estabelecer a conexão! Tentando novamente!'
+                print 'Mensagem perdida! Tentando novamente...\n'
+                sock.settimeout(None)
+                time.sleep(2)
                 continue
-
-    	    dataReceived = sock.revfrom(4096)
+            sock.settimeout(None)
     	    data = pickle.loads(dataReceived[0])
     	    address = dataReceived[1]
 
     # Close the game
-    time.sleep(3)
     print 'Fechando o jogo...\n'
+    time.sleep(3)
     sock.close()
 
 play()
