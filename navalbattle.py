@@ -177,10 +177,11 @@ def attackCoord(line, column):
 def printTable():
     global tableN, table
 
-    print '-- ' * tableN
+    print '\t' + ('-- ' * tableN)
     for i in range(0, tableN):
         print '| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
-    print '-- ' * tableN
+    print '\t' + ('-- ' * tableN)
+    print '\n'
 
 # Create socket server and make connection to the target server
 def connection(ID, HOST, TARGET):
@@ -254,13 +255,13 @@ def play():
             print "\nDevem haver necessariamente 2 coordenadas e 1 tipo. Digite novamente!\n"
             continue
         if coordenations[2].upper() != "L" and coordenations[2].upper() != "C":
-            print "Os tipos de coordenada devem ser C ou L!\n"
+            print "\nOs tipos de coordenada devem ser C ou L!\n"
             continue
         try:
             int(coordenations[0])
             int(coordenations[1])
         except ValueError:
-            print "As coordenadas devem ser números inteiros!\n"
+            print "\nAs coordenadas devem ser números inteiros!\n"
             continue
         validate = addShip(int(coordenations[0]), int(coordenations[1]), coordenations[2], s)
         if validate:
@@ -292,14 +293,14 @@ def play():
             # Choose a player to attack
             player = raw_input("Escolha um jogador: ")
             while (player == struct_server['id']) or (player not in players):
-                print 'Impossível atacar jogador %s!' % player
+                print '\nImpossível atacar jogador %s!\n' % player
                 player = raw_input("Escolha um jogador: ")
 
             data['destiny'] = player
 
             # Choose where to strike
             while True:
-                coordenations = raw_input("\nCoordenadas de ataque (linha,coluna): ")
+                coordenations = raw_input("Coordenadas de ataque (linha,coluna): ")
                 coordenations = coordenations.split(',')
                 if len(coordenations) != 2:
                     print "\nDevem haver necessariamente 2 coordenadas. Digite novamente!\n"
@@ -374,7 +375,7 @@ def play():
                     continue
         else:
             # If the player doesn't have the token, he wait for it
-            print 'Aguardando jogadores...'
+            print 'Aguardando jogadores...\n'
             while not struct_server['has_token'] and struct_server['id'] in players:
                 dataReceiver = sock.recvfrom(4096)
                 data = pickle.loads(dataReceiver[0])
@@ -396,11 +397,11 @@ def play():
                     elif data['destiny'] == struct_server['id']:
                         data['received'] = 1
                         if data['type'] == 'A':
-                            print 'Ataque recebido do jogador %s nas coordenadas (%s, %s)!' % (data['id'], data['data'][0], data['data'][1])
+                            print 'Ataque recebido do jogador %s nas coordenadas (%s, %s)!\n' % (data['id'], data['data'][0], data['data'][1])
                             data['data'] = attackCoord(int(data['data'][0]), int(data['data'][1]))
                             print data['data'] + '\n'
                             if not numberShips:
-                                print "Todos os seus navios foram destruidos"
+                                print "Todos os seus navios foram destruidos!\n"
                                 data['type'] = 'EX'
                                 data['data'] = 'Jogador %s eliminado!' % struct_server['id']
                             elif 'destruido' in data['data']:
@@ -462,7 +463,7 @@ def play():
             'winner'   : struct_server['id']
         }
 
-        data['data'] = 'O jogador vencedor é ' + data['id']
+        data['data'] = 'O jogador vencedor é ' + data['id'] + '!'
 
         while not data['received']:
             try:
