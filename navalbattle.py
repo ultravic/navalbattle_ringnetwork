@@ -242,9 +242,11 @@ def play():
     # Initialize the table
     init(n, s)
 
-    # Add the player to the list
-    players = ['macalan', 'orval']
-    # players = ['h12', 'h11', 'h10', 'h9']
+    # Player's to the list
+    if sys.argv[1] == 'macalan' or sys.argv[2] == 'macalan':
+        players = ['macalan', 'orval']
+    else:
+        players = ['h12', 'h11', 'h10', 'h9']
 
     # Add the ships to a given coordenation
     while s:
