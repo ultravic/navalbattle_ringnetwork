@@ -385,7 +385,7 @@ def play():
     if '--token' in sys.argv:
         struct_server['has_token'] = True
 
-    times = floor((50-(22+len(sys.argv[1])))/2)
+    times = int((50-(22+len(sys.argv[1])))/2)
     print "##################################################"
     print "#"*times + "  Bem vindo jogador" + sys.argv[1] + "!  " + "#"*times
 
