@@ -98,7 +98,7 @@ def attackCoord(line, column):
                         table[line*tableN + column] = 0
                 else:
                     response = "Missil atingiu a agua"
-            elif column == tableN:
+            elif column == tableN-1:
                 if table[line*tableN + column] != 0:
                     auxiliar = table[line*tableN + column]
                     if (table[line*tableN + column-1] != auxiliar and
@@ -116,18 +116,43 @@ def attackCoord(line, column):
             else:
                 if table[line*tableN + column] != 0:
                     auxiliar = table[line*tableN + column]
-                    if (table[line*tableN + column+1] != auxiliar and
-                    table[line*tableN + column+2] != auxiliar and
-                    table[line*tableN + column-1] != auxiliar and
-                    table[line*tableN + column-2] != auxiliar and
-                    table[(line+1)*tableN + column] != auxiliar and
-                    table[(line+2)*tableN + column] != auxiliar):
-                        response = "Navio %d destruido" % auxiliar
-                        table[line*tableN + column] = 0
-                        numberShips -= 1
+                    if column < tableN-2 and column > 1:
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column+2] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[line*tableN + column-2] != auxiliar and
+                        table[(line+1)*tableN + column] != auxiliar and
+                        table[(line+2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
+                    elif column == tableN-2:
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[line*tableN + column-2] != auxiliar and
+                        table[(line+1)*tableN + column] != auxiliar and
+                        table[(line+2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
                     else:
-                        response = "Navio %d atingido" % auxiliar
-                        table[line*tableN + column] = 0
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column+2] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[(line+1)*tableN + column] != auxiliar and
+                        table[(line+2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
                 else:
                     response = "Missil atingiu a agua"
         elif line == tableN-1:
@@ -164,10 +189,65 @@ def attackCoord(line, column):
             else:
                 if table[line*tableN + column] != 0:
                     auxiliar = table[line*tableN + column]
+                    if column < tableN-2 and column > 1:
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column+2] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[line*tableN + column-2] != auxiliar and
+                        table[(line-1)*tableN + column] != auxiliar and
+                        table[(line-2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
+                    elif column == tableN-2:
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[line*tableN + column-2] != auxiliar and
+                        table[(line-1)*tableN + column] != auxiliar and
+                        table[(line-2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
+                    else:
+                        if (table[line*tableN + column+1] != auxiliar and
+                        table[line*tableN + column+2] != auxiliar and
+                        table[line*tableN + column-1] != auxiliar and
+                        table[(line-1)*tableN + column] != auxiliar and
+                        table[(line-2)*tableN + column] != auxiliar):
+                            response = "Navio %d destruido" % auxiliar
+                            table[line*tableN + column] = 0
+                            numberShips -= 1
+                        else:
+                            response = "Navio %d atingido" % auxiliar
+                            table[line*tableN + column] = 0
+                else:
+                    response = "Missil atingiu a agua"
+        elif column == 0:
+            if table[line*tableN + column] != 0:
+                auxiliar = table[line*tableN + column]
+                if line < tableN-2 and line > 1:
                     if (table[line*tableN + column+1] != auxiliar and
                     table[line*tableN + column+2] != auxiliar and
-                    table[line*tableN + column-1] != auxiliar and
-                    table[line*tableN + column-2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
+                    table[(line+2)*tableN + column] != auxiliar and
+                    table[(line-1)*tableN + column] != auxiliar and
+                    table[(line-2)*tableN + column] != auxiliar):
+                        response = "Navio %d destruido" % auxiliar
+                        table[line*tableN + column] = 0
+                        numberShips -= 1
+                    else:
+                        response = "Navio %d atingido" % auxiliar
+                        table[line*tableN + column] = 0
+                elif line == tableN-2:
+                    if (table[line*tableN + column+1] != auxiliar and
+                    table[line*tableN + column+2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
                     table[(line-1)*tableN + column] != auxiliar and
                     table[(line-2)*tableN + column] != auxiliar):
                         response = "Navio %d destruido" % auxiliar
@@ -177,39 +257,59 @@ def attackCoord(line, column):
                         response = "Navio %d atingido" % auxiliar
                         table[line*tableN + column] = 0
                 else:
-                    response = "Missil atingiu a agua"
-        elif column == 0:
-            if table[line*tableN + column] != 0:
-                auxiliar = table[line*tableN + column]
-                if (table[line*tableN + column+1] != auxiliar and
-                table[line*tableN + column+2] != auxiliar and
-                table[(line+1)*tableN + column] != auxiliar and
-                table[(line+2)*tableN + column] != auxiliar and
-                table[(line-1)*tableN + column] != auxiliar and
-                table[(line-2)*tableN + column] != auxiliar):
-                    response = "Navio %d destruido" % auxiliar
-                    table[line*tableN + column] = 0
-                    numberShips -= 1
-                else:
-                    response = "Navio %d atingido" % auxiliar
-                    table[line*tableN + column] = 0
+                    if (table[line*tableN + column+1] != auxiliar and
+                    table[line*tableN + column+2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
+                    table[(line+2)*tableN + column] != auxiliar and
+                    table[(line-1)*tableN + column] != auxiliar):
+                        response = "Navio %d destruido" % auxiliar
+                        table[line*tableN + column] = 0
+                        numberShips -= 1
+                    else:
+                        response = "Navio %d atingido" % auxiliar
+                        table[line*tableN + column] = 0
             else:
                 response = "Missil atingiu a agua"
         elif column == tableN-1:
             if table[line*tableN + column] != 0:
                 auxiliar = table[line*tableN + column]
-                if (table[line*tableN + column-1] != auxiliar and
-                table[line*tableN + column-2] != auxiliar and
-                table[(line+1)*tableN + column] != auxiliar and
-                table[(line+2)*tableN + column] != auxiliar and
-                table[(line-1)*tableN + column] != auxiliar and
-                table[(line-2)*tableN + column] != auxiliar):
-                    response = "Navio %d destruido" % auxiliar
-                    table[line*tableN + column] = 0
-                    numberShips -= 1
+                if line < tableN-2 and line > 1:
+                    if (table[line*tableN + column-1] != auxiliar and
+                    table[line*tableN + column-2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
+                    table[(line+2)*tableN + column] != auxiliar and
+                    table[(line-1)*tableN + column] != auxiliar and
+                    table[(line-2)*tableN + column] != auxiliar):
+                        response = "Navio %d destruido" % auxiliar
+                        table[line*tableN + column] = 0
+                        numberShips -= 1
+                    else:
+                        response = "Navio %d atingido" % auxiliar
+                        table[line*tableN + column] = 0
+                elif line == tableN-2:
+                    if (table[line*tableN + column-1] != auxiliar and
+                    table[line*tableN + column-2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
+                    table[(line-1)*tableN + column] != auxiliar and
+                    table[(line-2)*tableN + column] != auxiliar):
+                        response = "Navio %d destruido" % auxiliar
+                        table[line*tableN + column] = 0
+                        numberShips -= 1
+                    else:
+                        response = "Navio %d atingido" % auxiliar
+                        table[line*tableN + column] = 0
                 else:
-                    response = "Navio %d atingido" % auxiliar
-                    table[line*tableN + column] = 0
+                    if (table[line*tableN + column-1] != auxiliar and
+                    table[line*tableN + column-2] != auxiliar and
+                    table[(line+1)*tableN + column] != auxiliar and
+                    table[(line+2)*tableN + column] != auxiliar and
+                    table[(line-1)*tableN + column] != auxiliar):
+                        response = "Navio %d destruido" % auxiliar
+                        table[line*tableN + column] = 0
+                        numberShips -= 1
+                    else:
+                        response = "Navio %d atingido" % auxiliar
+                        table[line*tableN + column] = 0
             else:
                 response = "Missil atingiu a agua"
         else:
