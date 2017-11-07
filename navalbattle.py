@@ -350,7 +350,7 @@ def connection(ID, HOST, TARGET):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print '\nCONEXÃO: Criação do socket feita com sucesso!'
     except:
-        print 'CONEXÃO: Criação do socket falhou! Saindo...'
+        print '\nCONEXÃO: Criação do socket falhou! Saindo...'
         sys.exit()
 
     struct_server = {
@@ -367,7 +367,7 @@ def connection(ID, HOST, TARGET):
     while True:
         try:
             sock.bind(struct_server['host'])
-            print '\nCONEXÃO: Socket vinculado com sucesso em %s' % struct_server['target'][0]
+            print 'CONEXÃO: Socket vinculado com sucesso em %s' % struct_server['target'][0]
             break
         except socket.error:
             print '\nErro ao conectar socket! Tentando novamente...'
@@ -387,7 +387,7 @@ def play():
 
     times = int((50-(22+len(sys.argv[1])))/2)
     print "##################################################"
-    print "#"*times + "  Bem vindo jogador" + sys.argv[1] + "!  " + "#"*times
+    print "#"*times + "  Bem vindo jogador " + sys.argv[1] + "!  " + "#"*times
 
     # Read inputs for the table
     while True:
@@ -430,7 +430,7 @@ def play():
     while struct_server['id'] in players and len(players)-1:
         if struct_server['has_token']:
             # If the player has the token, then he can strike someone
-            print "\nÉ a sua vez!"
+            print "\n> É a sua vez!"
 
             # Create the message to be sent
             data = {
@@ -531,7 +531,7 @@ def play():
                     continue
         else:
             # If the player doesn't have the token, he wait for it
-            print '\nAguardando jogadores...'
+            print '\n> Aguardando jogadores...'
             while not struct_server['has_token'] and struct_server['id'] in players:
                 dataReceiver = sock.recvfrom(4096)
                 data = pickle.loads(dataReceiver[0])
