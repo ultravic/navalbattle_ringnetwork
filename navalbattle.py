@@ -340,7 +340,7 @@ def printTable():
     print '\n\t' + ('-- ' * tableN)
     for i in range(0, tableN):
         print '\t| ' + ' '.join(str(x) for x in table[i*tableN:i*tableN+tableN]) + ' |'
-    print '\t' + ('-- ' * tableN)
+    print '\t' + ('-- ' * tableN) + '\n'
 
 # Create socket server and make connection to the target server
 def connection(ID, HOST, TARGET):
@@ -348,7 +348,7 @@ def connection(ID, HOST, TARGET):
 
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print '\n CONEXÃO: Criação do socket feita com sucesso!'
+        print '\nCONEXÃO: Criação do socket feita com sucesso!'
     except:
         print 'CONEXÃO: Criação do socket falhou! Saindo...'
         sys.exit()
@@ -385,8 +385,9 @@ def play():
     if '--token' in sys.argv:
         struct_server['has_token'] = True
 
-    print "#################################################"
-    print "######   Bem vindo jogador %s!   #########" % sys.argv[1]
+    times = floor((50-(22+len(sys.argv[1])))/2)
+    print "##################################################"
+    print "#"*times + "  Bem vindo jogador" + sys.argv[1] + "!  " + "#"*times
 
     # Read inputs for the table
     while True:
@@ -429,7 +430,7 @@ def play():
     while struct_server['id'] in players and len(players)-1:
         if struct_server['has_token']:
             # If the player has the token, then he can strike someone
-            print "\nÉ a sua vez!\n"
+            print "\nÉ a sua vez!"
 
             # Create the message to be sent
             data = {
@@ -493,17 +494,17 @@ def play():
                 if data['received']:
                     if data['type'] == 'DX':
                         data['data'] = data['data'] + ' do jogador ' + data['destiny'] + '!'
-                        print data['data'] + '\n'
+                        print '\n' + data['data']
                         data['type'] = 'D'
                         data['received'] = 0
                     # If the message has type E, print player data and remove from players
                     elif data['type'] == 'EX':
-                        print data['data'] + '\n'
+                        print '\n' + data['data']
                         players.remove(data['destiny'])
                         data['type'] = 'E'
                         data['received'] = 0
                     elif data['type'] != 'D' and data['type'] != 'E':
-                        print data['data'] + '\n'
+                        print '\n' + data['data']
 
             # Create the message to send token
             data = {
@@ -541,20 +542,20 @@ def play():
                 else:
                     # If the message has type D, print ship destroyed
                     if data['type'] == 'D' and data['destiny'] != struct_server['id']:
-                        print data['data'] + '\n'
+                        print '\n' + data['data']
                         data['received'] = 1
                     # If the message has type E, print player data and remove from players
                     elif data['type'] == 'E':
-                        print data['data'] + '\n'
+                        print '\n' + data['data']
                         data['received'] = 1
                         players.remove(data['destiny'])
                     # If the message destiny is equal to server id, then intercept it
                     elif data['destiny'] == struct_server['id']:
                         data['received'] = 1
                         if data['type'] == 'A':
-                            print '\nAtaque recebido do jogador %s nas coordenadas (%s, %s)!\n' % (data['id'], data['data'][0], data['data'][1])
+                            print '\nAtaque recebido do jogador %s nas coordenadas (%s, %s)!' % (data['id'], data['data'][0], data['data'][1])
                             data['data'] = attackCoord(int(data['data'][0]), int(data['data'][1]))
-                            print data['data'] + '\n'
+                            print '\n' + data['data']
                             if not numberShips:
                                 print "\nTodos os seus navios foram destruidos!"
                                 data['type'] = 'EX'
@@ -583,7 +584,7 @@ def play():
 
             if data['type'] == 'W':
                 struct_server['winner'] = data['winner']
-                print data['data'] + '\n'
+                print '\n' + data['data']
                 data['received'] = 1
                 while True:
                     try:
