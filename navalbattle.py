@@ -19,6 +19,8 @@ servers['h12'] = '10.254.223.16'
 servers['h11'] = '10.254.223.15'
 servers['h10'] = '10.254.223.14'
 servers['h9'] = '10.254.223.13'
+servers['h48'] = '10.254.223.52'
+servers['h47'] = '10.254.223.51'
 reverse = {}
 reverse['200.17.202.6'] = 'macalan'
 reverse['200.17.202.28'] = 'orval'
@@ -26,7 +28,9 @@ reverse['10.254.223.16'] = 'h12'
 reverse['10.254.223.15'] = 'h11'
 reverse['10.254.223.14'] = 'h10'
 reverse['10.254.223.13'] = 'h9'
-players = ['h12', 'h11']
+reverse['10.254.223.52'] = 'h48'
+reverse['10.254.223.51'] = 'h47'
+players = ['h48', 'h47']
 
 # Initiatle the table
 def init(N, S):
@@ -447,10 +451,10 @@ def play():
             }
 
             # Choose a player to attack
-            player = raw_input("\n> Escolha um jogador: ")
+            player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "):")
             while (player == struct_server['id']) or (player not in players):
                 print '\nERRO: Impossível atacar jogador %s!' % player
-                player = raw_input("\n> Escolha um jogador: ")
+                player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "):")
 
             data['destiny'] = player
 
