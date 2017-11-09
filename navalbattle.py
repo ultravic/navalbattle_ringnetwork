@@ -30,7 +30,7 @@ reverse['10.254.223.14'] = 'h10'
 reverse['10.254.223.13'] = 'h9'
 reverse['10.254.223.52'] = 'h48'
 reverse['10.254.223.51'] = 'h47'
-players = ['h48', 'h47']
+players = ['h48', 'h47', 'macalan', 'orval']
 
 # Initiatle the table
 def init(N, S):
@@ -40,14 +40,14 @@ def init(N, S):
     table = range(0, tableSize)
     for i in range(0, tableSize):
         table[i] = 0
-    maxShips = math.floor(tableSize/6)
-    numberShips = maxShips if S > maxShips else S
+    maxShips = int(tableSize/3)
+    numberShips = maxShips-1 if S > maxShips else S
 
 # Add a ship to the table
 def addShip(line, column, type, s):
     type = type.upper()
     if type == 'L':
-        if column < 4:
+        if column < tableN-1:
             if (table[(line-1)*tableN + column-1] == 0 and
             table[(line-1)*tableN + column] == 0 and
             table[(line-1)*tableN + column+1] == 0):
@@ -55,12 +55,13 @@ def addShip(line, column, type, s):
                 table[(line-1)*tableN + column] = s
                 table[(line-1)*tableN + column+1] = s
             else:
-                print "Ja existe um navio nessas coordenadas"
+                print "\nERRO: Ja existe um navio nessas coordenadas!"
                 return 0
         else:
-            print "Coordenadas fora dos limites 1x3"
+            print "\nERRO: Impossível adicionar o navio no tabuleiro com essas coordenadas!"
+            return 0
     elif type == 'C':
-        if line < 4:
+        if line < tableN-1:
             if (table[(line-1)*tableN + column-1] == 0 and
             table[line*tableN + column-1] == 0 and
             table[(line+1)*tableN + column-1] == 0):
@@ -68,12 +69,13 @@ def addShip(line, column, type, s):
                 table[line*tableN + column-1] = s
                 table[(line+1)*tableN + column-1] = s
             else:
-                print "Ja existe um navio nessas coordenadas"
+                print "\nERRO: Ja existe um navio nessas coordenadas!"
                 return 0
         else:
-            print "Coordenadas fora dos limites 3x1"
+            print "\nERRO: Impossível adicionar o navio no tabuleiro com essas coordenadas!"
+            return 0
     else:
-        print "Tipo inexistente"
+        print "\nERRO: Tipo inexistente!"
         return 0
     return 1
 
@@ -407,9 +409,11 @@ def play():
     # Initialize the table
     init(n, s)
 
+    s = numberShips
+
     # Add the ships to a given coordenation
     while s:
-        coordenations = raw_input("\n> Coordenadas e tipo(linha,coluna,tipo): ")
+        coordenations = raw_input("\n> Navio(" + str(s) + ") nas cordenadas e tipo(linha,coluna,tipo): ")
         coordenations = coordenations.split(',')
         if len(coordenations) != 3:
             print "\nERRO: Devem haver necessariamente 2 coordenadas e 1 tipo!"
@@ -451,10 +455,10 @@ def play():
             }
 
             # Choose a player to attack
-            player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "):")
+            player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "): ")
             while (player == struct_server['id']) or (player not in players):
                 print '\nERRO: Impossível atacar jogador %s!' % player
-                player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "):")
+                player = raw_input("\n> Escolha um jogador (" + ", ".join(players) + "): ")
 
             data['destiny'] = player
 
